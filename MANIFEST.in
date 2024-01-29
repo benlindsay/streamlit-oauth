@@ -1,1 +1,3 @@
+recursive-include streamlit_*/frontend/ *
 recursive-include streamlit_*/frontend/dist *
+recursive-include streamlit_*/frontend/public *
