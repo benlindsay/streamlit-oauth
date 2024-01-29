@@ -49,6 +49,10 @@ def _generate_pkce_pair(pkce):
   code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().replace("=", "")
   return code_verifier, code_challenge
 
+@st.cache_data(ttl=300)
+def _get_access_token(_client, args):
+  return asyncio.run(_client.get_access_token(**args))
+
 class OAuth2Component:
   def __init__(self, client_id=None, client_secret=None, authroize_endpoint=None, token_endpoint=None, refresh_token_endpoint=None, revoke_token_endpoint=None, client=None, *, authorize_endpoint=None):
     # Handle typo in backwards-compatible way
@@ -104,7 +108,7 @@ class OAuth2Component:
         if pkce:
           args['code_verifier'] = code_verifier
         
-        result['token'] = asyncio.run(self.client.get_access_token(**args))
+        result['token'] = _get_access_token(self.client, args)
       if 'id_token' in result:
         # TODO: verify id_token
         result['id_token'] = base64.b64decode(result['id_token'].split('.')[1] + '==')
